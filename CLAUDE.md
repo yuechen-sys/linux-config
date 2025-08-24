@@ -59,6 +59,7 @@ This is a personal Linux configuration repository containing dotfiles and shell 
 ### Development Notes
 
 When modifying configurations:
-- Test changes by running `./config install dotfiles` 
+- Changes to files in `configs/default/` or `configs/personal/` are immediately effective via symlinks
+- Run `./config install dotfiles` to create/update symlinks to latest config priority
 - Use `./config -v install [component]` for detailed logging
-- Backup files are automatically created in `~/.config-backups/`
+- Backup files are automatically created in `~/.config-backups/` before symlinking

@@ -96,12 +96,12 @@ python3 -c "from scripts.installers.dotfiles import DotfilesInstaller; import lo
   - `spec-workflow-mcp`: Specification workflow management
 
 ### Dotfiles
-- Deploys configuration files to home directory:
+- Creates symlinks in home directory to configuration files:
   - `.zshrc`: Shell configuration
   - `.gitconfig`: Git configuration
   - `custom-CLAUDE.md`: Claude Code custom instructions
-- Creates backups before deployment
-- Supports diff viewing and rollback
+- Creates backups before symlinking
+- Keeps configurations synchronized automatically via symlinks
 
 ## 📁 Project Structure
 
@@ -139,12 +139,12 @@ linux-config/
    # Edit configs/personal/.zshrc with your customizations
    ```
 
-2. **Update the installer to use your configs:**
+2. **The installer creates symlinks with priority:**
    ```bash
-   # The dotfiles installer will automatically detect and use
-   # configs in the following priority:
+   # Priority order:
    # 1. configs/personal/ (your customizations)
    # 2. configs/default/ (fallback defaults)
+   # All changes to source files are immediately reflected via symlinks
    ```
 
 ## System Requirements
