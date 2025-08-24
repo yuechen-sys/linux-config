@@ -23,21 +23,61 @@ chmod +x config
 
 ## Features
 
-### 🚀 Automated Installation
-- **Oh My Zsh**: Complete shell framework with plugins (syntax highlighting, autosuggestions)
-- **Claude Code**: AI-powered CLI tool with NVM, Node.js, and MCP plugins
-- **Dotfiles**: Automatic deployment of configuration files (.zshrc, .gitconfig, etc.)
+### 🚀 Automated Configuration
+- **Oh My Zsh**: Shell framework with plugins (syntax highlighting, autosuggestions)
+- **Claude Code**: AI-powered CLI tool with MCP plugins
+- **Dotfiles**: Symlinked configuration files (.zshrc, .gitconfig, etc.)
 
 ### 🔧 Modular Architecture
 - **Python-based**: Easy to maintain and extend
 - **Component isolation**: Each tool has its own installer module
-- **Error handling**: Comprehensive logging and recovery options
+- **Smart prerequisites**: Checks dependencies and provides installation instructions
 - **Backup system**: Automatic backup of existing configurations
 
-### 📦 Dependency Management
-- **Smart detection**: Automatically detects and installs prerequisites
-- **NVM integration**: Handles Node.js installation via NVM for Claude Code
-- **Plugin management**: Automated installation of Oh My Zsh plugins and MCP extensions
+### 📦 Prerequisite Checking
+- **Environment validation**: Checks for required software before installation
+- **Clear instructions**: Provides specific commands for installing missing dependencies
+- **Multiple options**: Supports different installation methods (system packages, NVM, etc.)
+- **Safe operation**: Won't modify system without proper dependencies
+
+## Prerequisites
+
+Before using this configuration system, make sure you have the required dependencies:
+
+### For Oh My Zsh
+```bash
+# Ubuntu/Debian
+sudo apt install zsh curl git
+
+# CentOS/RHEL/Fedora  
+sudo yum install zsh curl git
+# or: sudo dnf install zsh curl git
+
+# macOS
+brew install zsh curl git
+```
+
+### For Claude Code
+**Option 1 - Node Version Manager (Recommended):**
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+source ~/.bashrc  # or restart terminal
+nvm install --lts
+nvm use --lts
+```
+
+**Option 2 - System Package Manager:**
+```bash
+# Ubuntu/Debian
+sudo apt install nodejs npm
+
+# CentOS/RHEL/Fedora
+sudo yum install nodejs npm
+# or: sudo dnf install nodejs npm
+
+# macOS
+brew install node
+```
 
 ## Usage
 
@@ -57,9 +97,6 @@ chmod +x config
 
 # Update components
 ./config update claude-code
-
-# Uninstall components (with backup restoration)
-./config uninstall oh-my-zsh
 ```
 
 ### Advanced Options
@@ -78,22 +115,22 @@ python3 -c "from scripts.installers.dotfiles import DotfilesInstaller; import lo
 ## Components
 
 ### Oh My Zsh
-- Installs zsh if not present
+- Requires: `zsh`, `curl`, `git`
 - Sets up Oh My Zsh framework with agnoster theme
 - Installs required plugins:
   - `zsh-syntax-highlighting`: Command syntax highlighting
   - `zsh-autosuggestions`: Command autocompletion suggestions
-- Sets zsh as default shell
+- Provides instructions for setting zsh as default shell
 - Handles plugin updates
 
 ### Claude Code
-- Installs NVM (Node Version Manager)
-- Installs latest LTS Node.js via NVM
-- Installs Claude Code CLI globally
+- Requires: `node`, `npm` (via NVM or system packages)
+- Installs Claude Code CLI globally via npm
 - Configures MCP plugins:
   - `context7`: Documentation lookup
   - `grep`: Code search capabilities
   - `spec-workflow-mcp`: Specification workflow management
+- Falls back to curl installation if npm fails
 
 ### Dotfiles
 - Creates symlinks in home directory to configuration files:
@@ -167,8 +204,16 @@ linux-config/
 ### Common Issues
 
 1. **Permission denied**: Ensure the config script is executable: `chmod +x config`
-2. **Command not found**: Check if required tools are in PATH after installation
-3. **Network issues**: Verify internet connection for downloading components
+2. **Prerequisites not met**: Install required dependencies as shown in the Prerequisites section
+3. **Command not found**: Check if required tools are in PATH:
+   ```bash
+   # Check if tools are available
+   which zsh node npm claude
+   
+   # For NVM users, make sure to source the environment
+   source ~/.bashrc  # or restart terminal
+   ```
+4. **Network issues**: Verify internet connection for downloading components
 
 ### Logs and Debugging
 

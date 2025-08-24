@@ -34,13 +34,17 @@ This is a personal Linux configuration repository containing dotfiles and shell 
 
 ### Using the Config System
 
+**Prerequisites:** Make sure you have required dependencies installed first:
+- For Oh My Zsh: `zsh`, `curl`, `git`
+- For Claude Code: `node`, `npm` (via NVM or system packages)
+
 ```bash
 # Install all components on new machine
 ./config install all
 
 # Install individual components
-./config install oh-my-zsh    # Shell setup
-./config install claude-code  # AI CLI with dependencies
+./config install oh-my-zsh    # Shell setup (requires zsh)
+./config install claude-code  # AI CLI (requires Node.js/npm)
 ./config install dotfiles     # Deploy configuration files
 
 # Check status

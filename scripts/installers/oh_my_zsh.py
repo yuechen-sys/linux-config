@@ -29,19 +29,41 @@ class OhMyZshInstaller(BaseInstaller):
     
     @property
     def description(self) -> str:
-        return "Oh My Zsh framework with syntax highlighting and autosuggestions"
+        return "Oh My Zsh framework with syntax highlighting and autosuggestions (requires zsh)"
     
     def is_installed(self) -> bool:
         """Check if Oh My Zsh is installed."""
         return self.oh_my_zsh_dir.exists() and (self.oh_my_zsh_dir / 'oh-my-zsh.sh').exists()
     
+    def _check_prerequisites(self) -> List[str]:
+        """Check prerequisites for Oh My Zsh setup."""
+        issues = []
+        
+        if not self.command_exists('zsh'):
+            issues.append("zsh is not installed")
+        
+        if not self.command_exists('curl') and not self.command_exists('wget'):
+            issues.append("Neither curl nor wget is available for downloading")
+        
+        if not self.command_exists('git'):
+            issues.append("git is not installed")
+        
+        return issues
+    
     def install(self) -> bool:
         """Install Oh My Zsh and required plugins."""
         try:
-            # Install zsh if not present
-            if not self.command_exists('zsh'):
-                self.logger.info("Installing zsh...")
-                self._install_zsh()
+            # Check prerequisites first
+            issues = self._check_prerequisites()
+            if issues:
+                self.logger.error("Prerequisites not met:")
+                for issue in issues:
+                    self.logger.error(f"  - {issue}")
+                self.logger.info("Please install missing dependencies first:")
+                self.logger.info("  Ubuntu/Debian: sudo apt install zsh curl git")
+                self.logger.info("  CentOS/RHEL:   sudo yum install zsh curl git")
+                self.logger.info("  macOS:         brew install zsh curl git")
+                return False
             
             # Install Oh My Zsh
             if not self.is_installed():
@@ -54,8 +76,8 @@ class OhMyZshInstaller(BaseInstaller):
             self.logger.info("Installing Oh My Zsh plugins...")
             self._install_plugins()
             
-            # Set zsh as default shell if not already
-            self._set_default_shell()
+            # Suggest setting zsh as default shell
+            self._suggest_default_shell()
             
             return True
             
@@ -63,25 +85,6 @@ class OhMyZshInstaller(BaseInstaller):
             self.logger.error(f"Failed to install Oh My Zsh: {e}")
             return False
     
-    def _install_zsh(self):
-        """Install zsh package."""
-        # Try different package managers
-        package_managers = [
-            ['sudo', 'apt-get', 'update', '&&', 'sudo', 'apt-get', 'install', '-y', 'zsh'],
-            ['sudo', 'yum', 'install', '-y', 'zsh'],
-            ['sudo', 'dnf', 'install', '-y', 'zsh'],
-            ['sudo', 'pacman', '-S', '--noconfirm', 'zsh'],
-            ['brew', 'install', 'zsh']
-        ]
-        
-        for cmd in package_managers:
-            try:
-                self.run_command(cmd, shell=True)
-                return
-            except:
-                continue
-        
-        raise Exception("Could not install zsh - no supported package manager found")
     
     def _install_oh_my_zsh(self):
         """Install Oh My Zsh framework."""
@@ -110,8 +113,8 @@ class OhMyZshInstaller(BaseInstaller):
                     'git', 'clone', plugin['url'], str(plugin_path)
                 ])
     
-    def _set_default_shell(self):
-        """Set zsh as the default shell if it's not already."""
+    def _suggest_default_shell(self):
+        """Suggest setting zsh as the default shell if it's not already."""
         try:
             # Check current shell
             current_shell = os.environ.get('SHELL', '')
@@ -123,24 +126,14 @@ class OhMyZshInstaller(BaseInstaller):
             result = self.run_command(['which', 'zsh'])
             zsh_path = result.stdout.strip()
             
-            # Add zsh to /etc/shells if not present
-            try:
-                with open('/etc/shells', 'r') as f:
-                    shells = f.read()
-                if zsh_path not in shells:
-                    self.logger.info("Adding zsh to /etc/shells...")
-                    self.run_command(['sudo', 'sh', '-c', f'echo {zsh_path} >> /etc/shells'])
-            except:
-                pass  # Not critical if this fails
-            
-            # Change default shell
-            self.logger.info("Setting zsh as default shell...")
-            self.run_command(['chsh', '-s', zsh_path])
-            
-            self.logger.warning("You need to log out and log back in for the shell change to take effect")
+            self.logger.info("To set zsh as your default shell, run:")
+            self.logger.info(f"  chsh -s {zsh_path}")
+            self.logger.info("Then log out and log back in for the change to take effect")
             
         except Exception as e:
-            self.logger.warning(f"Could not set zsh as default shell: {e}")
+            self.logger.info("To set zsh as default shell:")
+            self.logger.info("  chsh -s $(which zsh)")
+            self.logger.info("Then log out and log back in")
     
     def update(self) -> bool:
         """Update Oh My Zsh and plugins."""
